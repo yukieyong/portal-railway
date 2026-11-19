@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Coding & AI Progress Portal</title>
+<style>
+  :root{
+    --purple:#6C4CF1; --pink:#F0489B; --yellow:#FFC93C; --teal:#12B5A5;
+    --blue:#2E7CF6; --ink:#20224B; --bg:#F4F2FF; --card:#ffffff; --done:#12B5A5; --radius:18px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Segoe UI','Trebuchet MS',Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5;}
+  header{background:linear-gradient(120deg,var(--purple),var(--pink)); color:#fff; padding:26px 20px; text-align:center;}
+  header h1{font-size:clamp(1.4rem,4vw,2.2rem);}
+  header p{margin-top:4px; opacity:.92;}
+  .wrap{max-width:1100px; margin:0 auto; padding:20px 16px 60px;}
+  nav.top{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:center; background:#fff;
+    padding:12px; box-shadow:0 3px 10px rgba(108,76,241,.10); position:sticky; top:0; z-index:5;}
+  .nav-btn{border:2px solid var(--purple); background:#fff; color:var(--purple); font-weight:700;
+    padding:8px 18px; border-radius:999px; cursor:pointer; font-size:.95rem; font-family:inherit;}
+  .nav-btn.active{background:var(--purple); color:#fff;}
+  .spacer{flex:1;}
+  .who{font-weight:700; font-size:.95rem;}
+  section{margin-top:30px;}
+  .sec-title{display:inline-block; background:var(--yellow); font-weight:800; font-size:1.1rem;
+    padding:8px 18px; border-radius:999px; margin-bottom:6px; box-shadow:3px 3px 0 rgba(32,34,75,.15);}
+  .sec-sub{color:#5a5d8a; margin-bottom:14px;}
+  .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+  .card{background:var(--card); border-radius:var(--radius); padding:20px;
+    box-shadow:0 4px 14px rgba(108,76,241,.12); border-top:6px solid var(--purple);}
+  .card h3{font-size:1.15rem; margin-bottom:4px;}
+  .small{font-size:.88rem; color:#6a6d99;}
+  input.field, select.field{width:100%; padding:12px; font-size:1rem; border:2px solid var(--purple);
+    border-radius:12px; margin-top:6px; font-family:inherit; background:#fff; color:var(--ink);}
+  label.flabel{display:block; font-weight:700; margin-top:14px;}
+  .btn{display:inline-block; border:none; cursor:pointer; font-weight:800; font-size:1rem;
+    padding:12px 24px; border-radius:999px; color:#fff; background:var(--purple); margin-top:16px; font-family:inherit;}
+  .btn:hover{filter:brightness(1.08);}
+  .btn.pink{background:var(--pink);} .btn.red{background:#E23A3A;} .btn.teal{background:var(--teal);}
+  .err{color:#C4336E; font-weight:700; margin-top:10px; display:none;}
+  .hint{margin-top:14px; font-size:.85rem; color:#8a8db5;}
+  .xp-big{font-size:2.2rem; font-weight:800; color:var(--purple);}
+  .level-chip{display:inline-block; background:var(--pink); color:#fff; font-weight:700; padding:6px 14px;
+    border-radius:999px; margin-top:6px;}
+  .bar-outer{background:#E7E4FA; border-radius:999px; height:16px; margin-top:10px; overflow:hidden;}
+  .bar-inner{height:100%; background:linear-gradient(90deg,var(--teal),var(--blue)); border-radius:999px; transition:width .5s;}
+  .badges{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;}
+  .badge{background:#FFF4D6; border:2px solid var(--yellow); border-radius:14px; padding:8px 12px; font-weight:700; font-size:.9rem;}
+  .badge.locked{background:#eee; border-color:#ccc; color:#999;}
+  .status-select{margin-top:8px; font-size:1rem; padding:8px 10px; border-radius:10px; border:2px solid var(--purple);
+    font-weight:600; width:100%; color:var(--ink); background:#fff; font-family:inherit;}
+  .status-pill{display:inline-block; padding:5px 14px; border-radius:999px; font-weight:700; font-size:.9rem; margin-top:8px;}
+  .st-OnTrack{background:#DDF9F4; color:#0B8577;}
+  .st-NeedsHelp{background:#FDE7EF; color:#C4336E;}
+  .st-Ahead{background:#FFF1C9; color:#9A7400;}
+  .st-JustStarted{background:#E5EEFF; color:#1E5FC2;}
+  .filters{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
+  .filter-btn{border:2px solid var(--purple); background:#fff; color:var(--purple); font-weight:700;
+    font-size:.95rem; padding:8px 16px; border-radius:999px; cursor:pointer; font-family:inherit;}
+  .filter-btn.active{background:var(--purple); color:#fff;}
+  .topic-card{border-top-color:var(--teal);}
+  .topic-card.project{border-top-color:var(--pink);}
+  .done-check{margin-top:12px; display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer;}
+  .done-check input{width:22px; height:22px; accent-color:var(--done); cursor:pointer;}
+  .done-tag{color:var(--done); font-weight:800;}
+  table.atable{width:100%; border-collapse:collapse; margin-top:12px; background:#fff;
+    border-radius:12px; overflow:hidden; box-shadow:0 3px 10px rgba(108,76,241,.10);}
+  .atable th{background:var(--purple); color:#fff; padding:10px; text-align:left; font-size:.9rem;}
+  .atable td{padding:10px; border-bottom:1px solid #EEEBFB; font-size:.95rem;}
+  .del-btn{background:#E23A3A; color:#fff; border:none; font-weight:700; padding:6px 14px; border-radius:999px; cursor:pointer; font-family:inherit;}
+  footer{text-align:center; color:#8a8db5; font-size:.85rem; padding:20px;}
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:12px 22px; border-radius:999px; font-weight:700; opacity:0; pointer-events:none; transition:opacity .3s;
+    max-width:90vw; z-index:20;}
+  .toast.show{opacity:1;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN VIEW ============ -->
+<div id="login-view">
+  <header style="border-radius:0 0 24px 24px;">
+    <h1>🎓 Student Coding &amp; AI Progress Portal</h1>
+    <p>Log in to see your coding &amp; AI progress</p>
+  </header>
+  <div class="card" style="max-width:420px; margin:50px auto; border-top-color:var(--pink);">
+    <h3>🔐 Student Login</h3>
+    <label class="flabel" for="login-name">Student name</label>
+    <select class="field" id="login-name"></select>
+    <label class="flabel" for="login-pass">Password</label>
+    <input class="field" type="password" id="login-pass" placeholder="Enter password">
+    <p class="err" id="login-err">Wrong password — please try again.</p>
+    <button class="btn" id="login-btn">Log in</button>
+    <p class="hint">Demo passwords: every student's password is <strong>1234</strong>.
+       Teachers/admin: 🛡️ button with PIN <strong>admin</strong> (change via ADMIN_PIN on the server).</p>
+    <button class="btn pink" id="admin-link">🛡️ Admin</button>
+  </div>
+</div>
+
+<!-- ============ ADMIN PIN VIEW ============ -->
+<div id="pin-view" class="hidden">
+  <div style="max-width:420px; margin:60px auto;">
+    <div class="card" style="border-top-color:#E23A3A;">
+      <h3>🛡️ Admin Access</h3>
+      <label class="flabel" for="admin-pin">Admin PIN</label>
+      <input class="field" type="password" id="admin-pin" placeholder="Enter admin PIN">
+      <p class="err" id="pin-err">Wrong PIN — please try again.</p>
+      <button class="btn red" id="pin-btn">Enter Admin</button>
+      <button class="btn" id="pin-back" style="background:#8a8db5;">Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="app-view" class="hidden">
+  <header>
+    <h1>🎓 Student Coding &amp; AI Progress Portal</h1>
+    <p>Learn coding &amp; AI, earn XP and badges</p>
+  </header>
+  <nav class="top">
+    <button class="nav-btn active" id="nav-portal">📊 My Progress</button>
+    <button class="nav-btn hidden" id="nav-admin">🛡️ Admin</button>
+    <span class="spacer"></span>
+    <span class="who" id="who-label"></span>
+    <button class="nav-btn" id="logout-btn">Log out</button>
+  </nav>
+
+  <div class="wrap" id="portal">
+    <section id="dashboard">
+      <span class="sec-title">1 · Student Dashboard</span>
+      <p class="sec-sub">Your XP, level, badges and progress — saved in the class database.</p>
+      <div class="grid">
+        <div class="card">
+          <h3 id="dash-name">—</h3>
+          <p class="small" id="dash-school">—</p>
+          <p class="xp-big"><span id="dash-xp">0</span> XP</p>
+          <span class="level-chip" id="dash-level">Level 1</span>
+          <div class="bar-outer"><div class="bar-inner" id="dash-bar" style="width:0%"></div></div>
+          <p class="small" id="dash-next" style="margin-top:8px;"></p>
+        </div>
+        <div class="card">
+          <h3>🏅 Badges</h3>
+          <p class="small">Earn badges by finishing topics and projects.</p>
+          <div class="badges" id="dash-badges"></div>
+        </div>
+        <div class="card">
+          <h3>📊 Current Progress</h3>
+          <p class="small" id="dash-done-count">—</p>
+          <div class="bar-outer" style="margin-top:14px;">
+            <div class="bar-inner" id="dash-topic-bar" style="width:0%; background:linear-gradient(90deg,var(--pink),var(--yellow));"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="teachers">
+      <span class="sec-title">2 · Teacher Progress Board</span>
+      <p class="sec-sub">All students at a glance. Admins can update a status and the card updates instantly.</p>
+      <div class="grid" id="teacher-grid"></div>
+    </section>
+
+    <section id="tracker">
+      <span class="sec-title">3 · Projects &amp; Topics Tracker</span>
+      <p class="sec-sub">Mark learning items as done to earn XP. Progress is saved in the class database.</p>
+      <div class="filters" id="topic-filter">
+        <button class="filter-btn active" data-f="all">All</button>
+        <button class="filter-btn" data-f="Coding">Coding</button>
+        <button class="filter-btn" data-f="AI">AI</button>
+        <button class="filter-btn" data-f="project">Projects</button>
+        <button class="filter-btn" data-f="todo">Not done yet</button>
+      </div>
+      <div class="grid" id="tracker-grid"></div>
+    </section>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="wrap hidden" id="admin">
+    <section>
+      <span class="sec-title" style="background:#FBC9C9;">🛡️ Admin · Class Manager</span>
+      <p class="sec-sub">Add or delete students and learning items. Everything is saved on the server.</p>
+
+      <div class="card" style="border-top-color:#E23A3A; max-width:520px;">
+        <h3>➕ Add a student</h3>
+        <label class="flabel">Full name</label>
+        <input class="field" id="add-name" placeholder="e.g. Siti Aminah">
+        <label class="flabel">School</label>
+        <input class="field" id="add-school" placeholder="e.g. SMK Seri Putra, Selangor">
+        <label class="flabel">Password (for student login)</label>
+        <input class="field" id="add-pass" placeholder="e.g. 1234">
+        <button class="btn teal" id="add-btn">Add student</button>
+        <p class="err" id="add-err">Please fill in all fields.</p>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>👥 Students (<span id="st-count">0</span>)</h3>
+        <table class="atable">
+          <thead><tr><th>Name</th><th>School</th><th>XP</th><th>Done</th><th>Status</th><th></th></tr></thead>
+          <tbody id="admin-rows"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:16px; border-top-color:var(--pink);">
+        <h3>📚 Add a topic or project</h3>
+        <label class="flabel">Title</label>
+        <input class="field" id="add-item-title" placeholder="e.g. Project: Rainforest Quiz App">
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;">
+            <label class="flabel">Type</label>
+            <select class="field" id="add-item-type">
+              <option value="topic">Topic</option>
+              <option value="project">Project</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label class="flabel">Category</label>
+            <select class="field" id="add-item-cat">
+              <option value="Coding">Coding</option>
+              <option value="AI">AI</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label class="flabel">XP</label>
+            <input class="field" id="add-item-xp" type="number" value="20" min="5" max="200">
+          </div>
+        </div>
+        <button class="btn teal" id="add-item-btn">Add item</button>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>🗂️ Learning items (<span id="item-count">0</span>)</h3>
+        <table class="atable">
+          <thead><tr><th>Title</th><th>Type</th><th>XP</th><th></th></tr></thead>
+          <tbody id="item-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <footer>Saved in the class database on the server — available to every device. 🇲🇾</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= API CLIENT =================
+let TOKEN = sessionStorage.getItem("scap_token") || null;
+let ROLE = sessionStorage.getItem("scap_role") || null;
+let ME = null;          // logged-in student object
+let DATA = null;        // { students, items }
+
+async function api(path, body) {
+  const opts = { method: body ? "POST" : "GET", headers: {} };
+  if (TOKEN) opts.headers["Authorization"] = "Bearer " + TOKEN;
+  if (body) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+  const r = await fetch(path, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || "Request failed");
+  return j;
+}
+
+const $ = s => document.querySelector(s);
+const studentById = id => DATA.students.find(s => s.id === id);
+const level = xp => Math.floor(xp / 100) + 1;
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2500);
+}
+function show(view) {
+  ["login-view", "pin-view", "app-view"].forEach(v => $("#"+v).classList.toggle("hidden", v !== view));
+}
+
+// ================= LOGIN =================
+async function fillLoginNames() {
+  try {
+    const { names } = await api("/api/names");
+    const sel = $("#login-name"); sel.innerHTML = "";
+    names.forEach(n => { const o = document.createElement("option"); o.value = n.id; o.textContent = n.name; sel.appendChild(o); });
+  } catch (e) { toast("Cannot reach server: " + e.message); }
+}
+$("#login-btn").onclick = async () => {
+  try {
+    const j = await api("/api/login", { name: $("#login-name").selectedOptions[0].textContent, password: $("#login-pass").value });
+    TOKEN = j.token; ROLE = "student"; ME = j.student;
+    sessionStorage.setItem("scap_token", TOKEN); sessionStorage.setItem("scap_role", "student");
+    $("#login-err").style.display = "none"; $("#login-pass").value = "";
+    await enterApp("portal");
+    toast("Welcome, " + j.student.name.split(" ")[0] + "!");
+  } catch (e) { $("#login-err").textContent = e.message; $("#login-err").style.display = "block"; }
+};
+$("#admin-link").onclick = () => { $("#pin-err").style.display = "none"; $("#admin-pin").value = ""; show("pin-view"); };
+$("#pin-back").onclick = () => show("login-view");
+$("#pin-btn").onclick = async () => {
+  try {
+    const j = await api("/api/admin/login", { pin: $("#admin-pin").value });
+    TOKEN = j.token; ROLE = "admin";
+    sessionStorage.setItem("scap_token", TOKEN); sessionStorage.setItem("scap_role", "admin");
+    $("#pin-err").style.display = "none";
+    await enterApp("admin");
+  } catch (e) { $("#pin-err").textContent = e.message; $("#pin-err").style.display = "block"; }
+};
+$("#logout-btn").onclick = () => {
+  TOKEN = null; ROLE = null; ME = null;
+  sessionStorage.removeItem("scap_token"); sessionStorage.removeItem("scap_role");
+  fillLoginNames(); show("login-view");
+};
+
+async function enterApp(which) {
+  DATA = await api("/api/data");
+  $("#nav-admin").classList.toggle("hidden", ROLE !== "admin");
+  show("app-view");
+  switchMain(which);
+  renderAll();
+}
+function switchMain(which) {
+  $("#nav-portal").classList.toggle("active", which === "portal");
+  $("#nav-admin").classList.toggle("active", which === "admin");
+  $("#portal").classList.toggle("hidden", which !== "portal");
+  $("#admin").classList.toggle("hidden", which !== "admin");
+}
+$("#nav-portal").onclick = () => switchMain("portal");
+$("#nav-admin").onclick = () => { if (ROLE === "admin") switchMain("admin"); };
+
+// ================= DASHBOARD =================
+function renderDashboard() {
+  if (!ME || !DATA) return;
+  const st = studentById(ME.id); if (!st) return;
+  const lvl = level(st.xp);
+  $("#dash-name").textContent = st.name;
+  $("#dash-school").textContent = st.school;
+  $("#dash-xp").textContent = st.xp;
+  $("#dash-level").textContent = "Level " + lvl;
+  $("#dash-bar").style.width = (st.xp % 100) + "%";
+  $("#dash-next").textContent = (100 - st.xp % 100) + " XP to Level " + (lvl + 1);
+  $("#dash-done-count").textContent = st.done + " of " + st.totalItems + " topics & projects completed";
+  $("#dash-topic-bar").style.width = Math.round(st.done / st.totalItems * 100) + "%";
+  const bwrap = $("#dash-badges"); bwrap.innerHTML = "";
+  [["🌟 First Steps",1],["💻 Code Rookie",2],["🤖 AI Explorer",3],["🏆 Project Champ",4]].forEach(([name, need]) => {
+    const el = document.createElement("span");
+    el.className = "badge" + (st.done >= need ? "" : " locked");
+    el.textContent = st.done >= need ? name : "🔒 " + name;
+    bwrap.appendChild(el);
+  });
+  $("#who-label").textContent = "👤 " + st.name;
+}
+
+// ================= TEACHER BOARD =================
+function renderTeacherBoard() {
+  const grid = $("#teacher-grid"); grid.innerHTML = "";
+  DATA.students.forEach(st => {
+    const isAdmin = ROLE === "admin";
+    const card = document.createElement("div"); card.className = "card";
+    card.innerHTML = `
+      <h3>${st.name}</h3><p class="small">${st.school}</p>
+      <span class="status-pill st-${st.status.replace(/\s/g,'')}">${st.status}</span>
+      <p style="margin-top:10px;"><strong>${st.xp} XP</strong> · Level ${level(st.xp)}</p>
+      <p class="small">${st.done}/${st.totalItems} topics & projects done</p>
+      ${isAdmin ? `<label class="small" style="display:block;margin-top:6px;">Status:</label>
+      <select class="status-select" data-sid="${st.id}">
+        ${["Just Started","On Track","Needs Help","Ahead"].map(o => `<option ${o===st.status?"selected":""}>${o}</option>`).join("")}
+      </select>` : ""}`;
+    grid.appendChild(card);
+  });
+  grid.querySelectorAll(".status-select").forEach(sel => {
+    sel.onchange = async e => {
+      const st = studentById(e.target.dataset.sid);
+      try {
+        await api("/api/status", { id: st.id, status: e.target.value });
+        st.status = e.target.value;
+        renderTeacherBoard();
+        toast(st.name + " → " + e.target.value);
+      } catch (err) { toast(err.message); }
+    };
+  });
+}
+
+// ================= TRACKER =================
+let topicFilter = "all";
+$("#topic-filter").querySelectorAll(".filter-btn").forEach(btn => {
+  btn.onclick = () => {
+    topicFilter = btn.dataset.f;
+    $("#topic-filter").querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active"); renderTracker();
+  };
+});
+function renderTracker() {
+  const grid = $("#tracker-grid"); grid.innerHTML = "";
+  const adminView = !ME; // admin session: browse items read-only
+  DATA.items.filter(i => {
+    if (topicFilter === "all" || adminView) return true;
+    if (topicFilter === "todo") return !i.doneBy.includes(ME.id);
+    if (topicFilter === "project") return i.type === "project";
+    return i.cat === topicFilter;
+  }).forEach(i => {
+    const done = !adminView && i.doneBy.includes(ME.id);
+    const card = document.createElement("div");
+    card.className = "card topic-card" + (i.type === "project" ? " project" : "");
+    card.innerHTML = `
+      <h3>${i.title}</h3>
+      <p class="small">${i.type === "project" ? "📁 Project" : i.cat + " topic"} · worth ${i.xp} XP · ${i.doneBy.length} completed it</p>
+      ${done ? '<p class="done-tag" style="margin-top:8px;">✔ Completed</p>' : ""}
+      ${adminView ? "" : `<label class="done-check">
+        <input type="checkbox" data-iid="${i.id}" ${done ? "checked" : ""}> Mark as done
+      </label>`}`;
+    grid.appendChild(card);
+  });
+  grid.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.onchange = async e => {
+      const itemId = e.target.dataset.iid;
+      try {
+        const j = await api("/api/progress", { itemId, done: e.target.checked });
+        ME = j.student;
+        const idx = DATA.students.findIndex(s => s.id === ME.id);
+        if (idx >= 0) DATA.students[idx] = { ...DATA.students[idx], xp: ME.xp, done: ME.done };
+        const item = DATA.items.find(x => x.id === itemId);
+        item.doneBy = j.item.doneBy;
+        renderAll();
+        toast(e.target.checked ? "+" + j.item.xp + " XP for " + ME.name.split(" ")[0] + "! 🎉" : "Unchecked — XP removed.");
+      } catch (err) { toast(err.message); e.target.checked = !e.target.checked; }
+    };
+  });
+}
+
+// ================= ADMIN =================
+$("#add-btn").onclick = async () => {
+  const name = $("#add-name").value.trim(), school = $("#add-school").value.trim(), pass = $("#add-pass").value.trim();
+  if (!name || !school || !pass) { $("#add-err").textContent = "Please fill in all fields."; $("#add-err").style.display = "block"; return; }
+  try {
+    await api("/api/students", { name, school, pass });
+    $("#add-err").style.display = "none";
+    $("#add-name").value = $("#add-school").value = $("#add-pass").value = "";
+    await enterApp("admin");
+    toast(name + " added!");
+  } catch (e) { $("#add-err").textContent = e.message; $("#add-err").style.display = "block"; }
+};
+$("#add-item-btn").onclick = async () => {
+  const title = $("#add-item-title").value.trim();
+  if (!title) { toast("Please enter a title."); return; }
+  try {
+    await api("/api/items", {
+      title,
+      type: $("#add-item-type").value,
+      cat: $("#add-item-cat").value,
+      xp: parseInt($("#add-item-xp").value, 10) || 20,
+    });
+    $("#add-item-title").value = "";
+    await enterApp(ROLE === "admin" ? "admin" : "portal");
+    toast("Item added!");
+  } catch (e) { toast(e.message); }
+};
+function renderAdmin() {
+  const tbody = $("#admin-rows"); tbody.innerHTML = "";
+  $("#st-count").textContent = DATA.students.length;
+  DATA.students.forEach(st => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${st.name}</strong></td><td class="small">${st.school}</td>
+      <td>${st.xp}</td><td>${st.done}/${st.totalItems}</td>
+      <td><span class="status-pill st-${st.status.replace(/\s/g,'')}">${st.status}</span></td>
+      <td><button class="del-btn" data-sid="${st.id}">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".del-btn").forEach(btn => {
+    btn.onclick = async () => {
+      const st = studentById(btn.dataset.sid);
+      if (!st || !confirm("Delete " + st.name + " and their progress?")) return;
+      try {
+        await api("/api/students/delete", { id: st.id });
+        DATA.students = DATA.students.filter(s => s.id !== st.id);
+        renderAdmin(); fillLoginNames(); toast(st.name + " deleted.");
+      } catch (e) { toast(e.message); }
+    };
+  });
+
+  const ibody = $("#item-rows"); ibody.innerHTML = "";
+  $("#item-count").textContent = DATA.items.length;
+  DATA.items.forEach(i => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i.title}</td><td class="small">${i.type === "project" ? "📁 Project" : i.cat}</td><td>${i.xp}</td>
+      <td><button class="del-btn" data-iid="${i.id}">Delete</button></td>`;
+    ibody.appendChild(tr);
+  });
+  ibody.querySelectorAll(".del-btn").forEach(btn => {
+    btn.onclick = async () => {
+      const item = DATA.items.find(x => x.id === btn.dataset.iid);
+      if (!item || !confirm("Delete " + item.title + "?")) return;
+      try {
+        await api("/api/items/delete", { id: item.id });
+        await enterApp("admin"); toast("Item deleted.");
+      } catch (e) { toast(e.message); }
+    };
+  });
+}
+function renderAll() { renderDashboard(); renderTeacherBoard(); renderTracker(); renderAdmin(); }
+
+// ================= START =================
+(async () => {
+  show("login-view");
+  await fillLoginNames();
+  if (TOKEN) {
+    try {
+      const me = await api("/api/me");
+      if (me.role === "student" && me.student) {
+        ME = me.student;
+        await enterApp("portal");
+      } else if (me.role === "admin") {
+        await enterApp("admin");
+      } else throw new Error("bad session");
+    } catch (e) {
+      // token expired (server restarted) — stay on login
+      TOKEN = null; ROLE = null;
+      sessionStorage.removeItem("scap_token"); sessionStorage.removeItem("scap_role");
+    }
+  }
+})();
+</script>
+</body>
+</html>
